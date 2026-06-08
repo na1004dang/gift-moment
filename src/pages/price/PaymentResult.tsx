@@ -22,24 +22,9 @@ export default function PaymentResult() {
     });
   };
 
-  // 카카오페이: 앱 실행 후 송금 탭으로 안내
+  // 카카오페이: 딥링크 불가 → 웹으로 이동
   const openKakaoPay = () => {
-    if (isMobile) {
-      const isAndroid = /Android/i.test(navigator.userAgent);
-      // 카카오페이 앱 직접 실행 (transfer 경로 미지원 → 메인 화면으로)
-      window.location.href = 'kakaopay://';
-      setTimeout(() => {
-        // 앱이 없으면 스토어로
-        window.open(
-          isAndroid
-            ? 'market://details?id=com.kakaopay.app'
-            : 'https://apps.apple.com/kr/app/kakaopay/id1102199660',
-          '_blank'
-        );
-      }, 2000);
-    } else {
-      window.open('https://kakaopay.com', '_blank');
-    }
+    window.open('https://kakaopay.com', '_blank');
   };
 
   // 토스 앱 열기 (금액 pre-fill 지원)
@@ -73,13 +58,13 @@ export default function PaymentResult() {
 
       {isMobile ? (
         <InfoBox>
-          <InfoText>💡 카카오페이 앱이 열리면 <strong>송금</strong> 탭에서</InfoText>
-          <InfoText><strong>{ownerName || '선물 받는 분'}</strong>을 검색 후 <strong>{amount.toLocaleString()}원</strong>을 보내주세요.</InfoText>
+          <InfoText>💡 <strong>토스</strong>는 금액이 자동 입력됩니다.</InfoText>
+          <InfoText>카카오페이는 앱에서 직접 <strong>{ownerName || '선물 받는 분'}</strong>에게 송금해주세요.</InfoText>
         </InfoBox>
       ) : (
         <InfoBox>
-          <InfoText>💡 PC에서는 카카오페이 / 토스 앱을 이용해주세요.</InfoText>
-          <InfoText>모바일에서 접속하면 앱으로 바로 연결됩니다.</InfoText>
+          <InfoText>💡 <strong>토스</strong>는 금액이 자동 입력됩니다.</InfoText>
+          <InfoText>카카오페이는 앱에서 직접 송금해주세요.</InfoText>
         </InfoBox>
       )}
 
