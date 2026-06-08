@@ -23,3 +23,14 @@ export const getGuestLetters = async (
   );
   return data;
 };
+
+// 소유자 전용 - 풀네임 편지 목록
+export const getOwnerLetters = async (
+  giftId: number
+): Promise<ApiResponse<GetGuestLettersResponse>> => {
+  const { data } = await axios.get(
+    `${BASE_URL}/api/v1/letters/owner/${giftId}`,
+    { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+  );
+  return data;
+};

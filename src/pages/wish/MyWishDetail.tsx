@@ -66,6 +66,9 @@ export default function MyWishDetail() {
           <span style={{ color: '#888' }}>목표 {wish.target_amount.toLocaleString()}원 ({percent}%)</span>
         </AmountRow>
       </AmountSection>
+      <LetterBtn onClick={() => navigate(`/wish/letters?gift_id=${wish.id}`)}>
+        💌 편지 관리 (보낸 사람 풀네임 보기)
+      </LetterBtn>
       <ButtonRow>
         <ShareBtn onClick={handleShare}>링크 공유</ShareBtn>
         <EditBtn onClick={() => navigate(`/wish/modify?gift_id=${wish.id}`)}>수정</EditBtn>
@@ -148,6 +151,20 @@ const AmountRow = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 14px;
+`;
+
+const LetterBtn = styled.button`
+  width: 100%;
+  padding: 14px;
+  background: #fff3cd;
+  color: #856404;
+  border: 1.5px solid #ffc107;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 8px;
+  &:hover { background: #ffe69c; }
 `;
 
 const ButtonRow = styled.div`

@@ -99,6 +99,32 @@ exports.getGuestLetters = async (req, res) => {
   }
 };
 
+// 위시 주인 전용 - 풀네임으로 편지 조회 (인증 필요)
+exports.getOwnerLetters = async (req, res) => {
+  try {
+    const { gift_id } = req.params;
+    // 본인 소유 확인
+    const [giftRows] = await pool.query(
+      'SELECT id FROM gifts WHERE id = ? AND member_id = ?',
+      [gift_id, req.user.id]
+    );
+    if (!giftRows.length) {
+      return res.status(403).json({ status: 403, message: '접근 권한이 없습니다.' });
+    }
+    const [rows] = await pool.query(
+      `SELECT id, sender_name, content, amount, created_at
+       FROM letters
+       WHERE gift_id = ? AND sender_name != '__system__'
+       ORDER BY created_at DESC`,
+      [gift_id]
+    );
+    const totalAmount = rows.reduce((sum, l) => sum + (l.amount || 0), 0);
+    return res.json({ status: 200, message: '성공', data: { letters: rows, total_amount: totalAmount } });
+  } catch (err) {
+    return res.status(500).json({ status: 500, message: '서버 오류' });
+  }
+};
+
 exports.getLetterById = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM letters WHERE id = ?', [req.params.letter_id]);

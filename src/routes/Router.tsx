@@ -7,6 +7,7 @@ import MyWishDetail from '../pages/wish/MyWishDetail';
 import MyWishModify from '../pages/wish/MyWishModify';
 import UserWishDetail from '../pages/wish/UserWishDetail';
 import GuestLetters from '../pages/letters/GuestLetters';
+import OwnerLetters from '../pages/letters/OwnerLetters';
 import PaymentResult from '../pages/price/PaymentResult';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -25,6 +26,7 @@ export default function Router() {
         <Route path="/wish/modify" element={<PrivateRoute><MyWishModify /></PrivateRoute>} />
         <Route path="/wish/user" element={<UserWishDetail />} />
         <Route path="/letters/:uniqueString" element={<GuestLetters />} />
+        <Route path="/wish/letters" element={<PrivateRoute><OwnerLetters /></PrivateRoute>} />
         <Route path="/payment/result" element={<PaymentResult />} />
       </Routes>
     </BrowserRouter>
