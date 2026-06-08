@@ -14,11 +14,17 @@ export default function GuestLetters() {
   const [form, setForm] = useState({ sender_name: '', content: '', amount: '' });
   const [submitting, setSubmitting] = useState(false);
   const [ownerName, setOwnerName] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
 
   useEffect(() => {
     if (!uniqueString) return;
     getWishByLink(uniqueString)
-      .then((res) => setOwnerName(res.data.owner_name || ''))
+      .then((res) => {
+        setOwnerName(res.data.owner_name || '');
+        setBankName(res.data.bank_name || '');
+        setAccountNumber(res.data.account_number || '');
+      })
       .catch(() => {});
   }, [uniqueString]);
 
@@ -50,6 +56,8 @@ export default function GuestLetters() {
         sender: form.sender_name,
         unique: uniqueString,
         owner: ownerName,
+        bank: bankName,
+        account: accountNumber,
       });
       navigate(`/payment/result?${query.toString()}`);
     } finally {

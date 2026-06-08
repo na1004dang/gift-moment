@@ -6,7 +6,7 @@ const imageUrl = (filename) =>
 
 exports.addWishlist = async (req, res) => {
   try {
-    const { title, description, link, price } = req.body;
+    const { title, description, link, price, bank_name, account_number } = req.body;
     const memberId = req.user.id;
 
     const [countRows] = await pool.query('SELECT COUNT(*) as cnt FROM gifts WHERE member_id = ?', [memberId]);
@@ -18,8 +18,8 @@ exports.addWishlist = async (req, res) => {
     const targetAmount = parseInt(price) || 0;
 
     const [result] = await pool.query(
-      'INSERT INTO gifts (member_id, title, description, link, price, target_amount, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [memberId, title, description, link, targetAmount, targetAmount, imgUrl]
+      'INSERT INTO gifts (member_id, title, description, link, price, target_amount, image_url, bank_name, account_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [memberId, title, description, link, targetAmount, targetAmount, imgUrl, bank_name || null, account_number || null]
     );
     return res.json({ status: 200, message: '위시리스트 등록 완료', data: { gift_id: result.insertId } });
   } catch (err) {
@@ -107,13 +107,13 @@ exports.getGiftDetailForGiver = async (req, res) => {
 exports.updateWishlist = async (req, res) => {
   try {
     const { gift_id } = req.params;
-    const { description, link, title, price } = req.body;
+    const { description, link, title, price, bank_name, account_number } = req.body;
     const [existing] = await pool.query('SELECT * FROM gifts WHERE id = ? AND member_id = ?', [gift_id, req.user.id]);
     if (!existing.length) return res.status(404).json({ status: 404, message: '없습니다.' });
 
     const imgUrl = req.file ? imageUrl(req.file.filename) : existing[0].image_url;
     await pool.query(
-      'UPDATE gifts SET title=?, description=?, link=?, image_url=?, price=?, target_amount=? WHERE id=?',
+      'UPDATE gifts SET title=?, description=?, link=?, image_url=?, price=?, target_amount=?, bank_name=?, account_number=? WHERE id=?',
       [
         title || existing[0].title,
         description || existing[0].description,
@@ -121,6 +121,8 @@ exports.updateWishlist = async (req, res) => {
         imgUrl,
         price || existing[0].price,
         price || existing[0].target_amount,
+        bank_name !== undefined ? bank_name : existing[0].bank_name,
+        account_number !== undefined ? account_number : existing[0].account_number,
         gift_id,
       ]
     );

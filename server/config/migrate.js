@@ -24,11 +24,16 @@ const migrate = async () => {
         target_amount INT NOT NULL DEFAULT 0,
         current_amount INT NOT NULL DEFAULT 0,
         image_url VARCHAR(500),
+        bank_name VARCHAR(50),
+        account_number VARCHAR(50),
         status ENUM('active','completed','expired') DEFAULT 'active',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
       )
     `);
+    // 기존 테이블에 컬럼 추가 (이미 존재하면 무시)
+    await conn.query(`ALTER TABLE gifts ADD COLUMN IF NOT EXISTS bank_name VARCHAR(50)`).catch(() => {});
+    await conn.query(`ALTER TABLE gifts ADD COLUMN IF NOT EXISTS account_number VARCHAR(50)`).catch(() => {});
     await conn.query(`
       CREATE TABLE IF NOT EXISTS letters (
         id INT AUTO_INCREMENT PRIMARY KEY,

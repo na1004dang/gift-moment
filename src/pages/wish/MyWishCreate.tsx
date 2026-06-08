@@ -7,7 +7,7 @@ export default function MyWishCreate() {
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [form, setForm] = useState({ title: '', description: '', link: '', price: '' });
+  const [form, setForm] = useState({ title: '', description: '', link: '', price: '', bank_name: '', account_number: '' });
   const [preview, setPreview] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -64,6 +64,15 @@ export default function MyWishCreate() {
           <label>목표 금액 (원) *</label>
           <Input name="price" type="number" value={form.price} onChange={handleChange} placeholder="50000" required />
         </Field>
+        <Divider>💳 계좌 정보 (선물 받을 계좌)</Divider>
+        <Field>
+          <label>은행명</label>
+          <Input name="bank_name" value={form.bank_name} onChange={handleChange} placeholder="예: 카카오뱅크" />
+        </Field>
+        <Field>
+          <label>계좌번호</label>
+          <Input name="account_number" value={form.account_number} onChange={handleChange} placeholder="예: 3333-01-1234567" />
+        </Field>
         <Button type="submit" disabled={submitting}>
           {submitting ? '만드는 중...' : '위시리스트 만들기'}
         </Button>
@@ -84,6 +93,14 @@ const Header = styled.div`
   gap: 16px;
   margin-bottom: 24px;
   h2 { font-size: 20px; font-weight: 700; }
+`;
+
+const Divider = styled.div`
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff6b9d;
+  padding: 8px 0 4px;
+  border-top: 1.5px dashed #ffd6e7;
 `;
 
 const BackBtn = styled.button`

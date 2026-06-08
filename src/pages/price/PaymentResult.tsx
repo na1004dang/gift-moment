@@ -8,6 +8,8 @@ export default function PaymentResult() {
   const senderName = params.get('sender') || '';
   const uniqueString = params.get('unique') || '';
   const ownerName = params.get('owner') || '';
+  const bankName = params.get('bank') || '';
+  const accountNumber = params.get('account') || '';
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -94,10 +96,24 @@ export default function PaymentResult() {
 
       <ManualInfo>
         <ManualTitle>직접 계좌이체</ManualTitle>
-        <ManualDesc>
-          선물 받는 분의 카카오톡으로<br />
-          계좌번호를 문의하고 직접 이체해주세요.
-        </ManualDesc>
+        {bankName && accountNumber ? (
+          <>
+            <AccountRow>
+              <AccountLabel>{bankName}</AccountLabel>
+              <AccountNumber>{accountNumber}</AccountNumber>
+              <CopyBtn onClick={() => {
+                navigator.clipboard.writeText(accountNumber);
+                alert('계좌번호가 복사됐습니다!');
+              }}>복사</CopyBtn>
+            </AccountRow>
+            <AccountOwner>예금주: {ownerName || '선물 받는 분'}</AccountOwner>
+          </>
+        ) : (
+          <ManualDesc>
+            선물 받는 분의 카카오톡으로<br />
+            계좌번호를 문의하고 직접 이체해주세요.
+          </ManualDesc>
+        )}
       </ManualInfo>
 
       <BackBtn onClick={() => navigate(`/wish/user?unique=${uniqueString}`)}>
@@ -273,6 +289,41 @@ const ManualDesc = styled.p`
   font-size: 13px;
   color: #888;
   line-height: 1.6;
+`;
+
+const AccountRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+`;
+
+const AccountLabel = styled.span`
+  font-size: 13px;
+  color: #888;
+  min-width: 70px;
+`;
+
+const AccountNumber = styled.span`
+  font-size: 15px;
+  font-weight: 700;
+  flex: 1;
+`;
+
+const CopyBtn = styled.button`
+  padding: 4px 10px;
+  background: #ff6b9d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+`;
+
+const AccountOwner = styled.p`
+  font-size: 12px;
+  color: #aaa;
 `;
 
 const BackBtn = styled.button`

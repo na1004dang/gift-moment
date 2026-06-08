@@ -17,6 +17,8 @@ export interface WishItem {
   target_amount: number;
   current_amount: number;
   image_url: string;
+  bank_name: string;
+  account_number: string;
   status: string;
   owner_name?: string;
   percent?: number;
