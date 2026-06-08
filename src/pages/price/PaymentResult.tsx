@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 
@@ -12,6 +13,14 @@ export default function PaymentResult() {
   const accountNumber = params.get('account') || '';
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const [copied, setCopied] = useState(false);
+
+  const copyAccount = () => {
+    navigator.clipboard.writeText(accountNumber).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   // 카카오페이: 앱 실행 후 송금 탭으로 안내
   const openKakaoPay = () => {
@@ -88,33 +97,51 @@ export default function PaymentResult() {
           <BtnIcon>💙</BtnIcon>
           토스로 {amount.toLocaleString()}원 송금
         </TossBtn>
+
+        {bankName && accountNumber && (
+          <AccountBtn onClick={copyAccount} $copied={copied}>
+            <BtnIcon>{copied ? '✅' : '🏦'}</BtnIcon>
+            {copied
+              ? '계좌번호 복사됨!'
+              : `${bankName} ${accountNumber} 복사`}
+          </AccountBtn>
+        )}
       </ButtonGroup>
 
-      <Divider>
-        <DividerLine /><DividerText>또는</DividerText><DividerLine />
-      </Divider>
+      {bankName && accountNumber && (
+        <AccountInfoBox>
+          <AccountInfoRow>
+            <span>은행</span>
+            <strong>{bankName}</strong>
+          </AccountInfoRow>
+          <AccountInfoRow>
+            <span>계좌번호</span>
+            <AccountNumText>{accountNumber}</AccountNumText>
+          </AccountInfoRow>
+          <AccountInfoRow>
+            <span>예금주</span>
+            <strong>{ownerName || '선물 받는 분'}</strong>
+          </AccountInfoRow>
+          <CopyFullBtn onClick={copyAccount} $copied={copied}>
+            {copied ? '✅ 복사됐습니다!' : '📋 계좌번호 복사하기'}
+          </CopyFullBtn>
+        </AccountInfoBox>
+      )}
 
-      <ManualInfo>
-        <ManualTitle>직접 계좌이체</ManualTitle>
-        {bankName && accountNumber ? (
-          <>
-            <AccountRow>
-              <AccountLabel>{bankName}</AccountLabel>
-              <AccountNumber>{accountNumber}</AccountNumber>
-              <CopyBtn onClick={() => {
-                navigator.clipboard.writeText(accountNumber);
-                alert('계좌번호가 복사됐습니다!');
-              }}>복사</CopyBtn>
-            </AccountRow>
-            <AccountOwner>예금주: {ownerName || '선물 받는 분'}</AccountOwner>
-          </>
-        ) : (
-          <ManualDesc>
-            선물 받는 분의 카카오톡으로<br />
-            계좌번호를 문의하고 직접 이체해주세요.
-          </ManualDesc>
-        )}
-      </ManualInfo>
+      {!bankName && (
+        <>
+          <Divider>
+            <DividerLine /><DividerText>또는</DividerText><DividerLine />
+          </Divider>
+          <ManualInfo>
+            <ManualTitle>직접 계좌이체</ManualTitle>
+            <ManualDesc>
+              선물 받는 분의 카카오톡으로<br />
+              계좌번호를 문의하고 직접 이체해주세요.
+            </ManualDesc>
+          </ManualInfo>
+        </>
+      )}
 
       <BackBtn onClick={() => navigate(`/wish/user?unique=${uniqueString}`)}>
         나중에 송금하기
@@ -291,40 +318,63 @@ const ManualDesc = styled.p`
   line-height: 1.6;
 `;
 
-const AccountRow = styled.div`
+const AccountBtn = styled.button<{ $copied: boolean }>`
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-`;
-
-const AccountLabel = styled.span`
-  font-size: 13px;
-  color: #888;
-  min-width: 70px;
-`;
-
-const AccountNumber = styled.span`
+  justify-content: center;
+  gap: 10px;
+  padding: 15px;
+  background: ${({ $copied }) => $copied ? '#e8f5e9' : '#f5f5f5'};
+  color: ${({ $copied }) => $copied ? '#2e7d32' : '#333'};
+  border: 1.5px solid ${({ $copied }) => $copied ? '#a5d6a7' : '#ddd'};
+  border-radius: 12px;
   font-size: 15px;
-  font-weight: 700;
-  flex: 1;
-`;
-
-const CopyBtn = styled.button`
-  padding: 4px 10px;
-  background: #ff6b9d;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s;
 `;
 
-const AccountOwner = styled.p`
-  font-size: 12px;
-  color: #aaa;
+const AccountInfoBox = styled.div`
+  width: 100%;
+  background: #f8f9fa;
+  border: 1.5px solid #e9ecef;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 `;
+
+const AccountInfoRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  span { font-size: 13px; color: #888; }
+  strong { font-size: 14px; color: #333; }
+`;
+
+const AccountNumText = styled.strong`
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #1a1a1a !important;
+  letter-spacing: 0.5px;
+`;
+
+const CopyFullBtn = styled.button<{ $copied: boolean }>`
+  width: 100%;
+  padding: 12px;
+  margin-top: 4px;
+  background: ${({ $copied }) => $copied ? '#e8f5e9' : '#fff'};
+  color: ${({ $copied }) => $copied ? '#2e7d32' : '#ff6b9d'};
+  border: 1.5px solid ${({ $copied }) => $copied ? '#a5d6a7' : '#ff6b9d'};
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+`;
+
 
 const BackBtn = styled.button`
   background: none;
