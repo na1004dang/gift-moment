@@ -11,23 +11,22 @@ export default function PaymentResult() {
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  // 카카오페이 앱 열기 (딥링크)
+  // 카카오페이: 앱 실행 후 송금 탭으로 안내
   const openKakaoPay = () => {
     if (isMobile) {
-      // 앱 딥링크 시도
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      // 카카오페이 앱 직접 실행 (transfer 경로 미지원 → 메인 화면으로)
       window.location.href = 'kakaopay://';
-      // 앱 미설치 시 스토어로 이동
       setTimeout(() => {
-        const isAndroid = /Android/i.test(navigator.userAgent);
+        // 앱이 없으면 스토어로
         window.open(
           isAndroid
-            ? 'https://play.google.com/store/apps/details?id=com.kakaopay.app'
+            ? 'market://details?id=com.kakaopay.app'
             : 'https://apps.apple.com/kr/app/kakaopay/id1102199660',
           '_blank'
         );
-      }, 1500);
+      }, 2000);
     } else {
-      // PC: 카카오페이 메인 페이지
       window.open('https://kakaopay.com', '_blank');
     }
   };
@@ -63,8 +62,8 @@ export default function PaymentResult() {
 
       {isMobile ? (
         <InfoBox>
-          <InfoText>💡 아래 버튼으로 바로 송금 앱을 열 수 있어요.</InfoText>
-          <InfoText>앱에서 <strong>{ownerName || '선물 받는 분'}</strong>을 검색해 송금해주세요.</InfoText>
+          <InfoText>💡 카카오페이 앱이 열리면 <strong>송금</strong> 탭에서</InfoText>
+          <InfoText><strong>{ownerName || '선물 받는 분'}</strong>을 검색 후 <strong>{amount.toLocaleString()}원</strong>을 보내주세요.</InfoText>
         </InfoBox>
       ) : (
         <InfoBox>
