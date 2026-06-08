@@ -2,18 +2,16 @@ const express = require('express');
 const router = express.Router();
 const controller = require('./wishlistController');
 const authenticate = require('../../middleware/authenticate');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
-const uploadDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
-});
-const upload = multer({ storage });
+// Cloudinary 설정이 있으면 클라우드 업로드, 없으면 메모리 저장
+let upload;
+if (process.env.CLOUDINARY_CLOUD_NAME) {
+  const { upload: cloudUpload } = require('../../config/cloudinary');
+  upload = cloudUpload;
+} else {
+  const multer = require('multer');
+  upload = multer({ storage: multer.memoryStorage() });
+}
 
 router.post('/', authenticate, upload.single('gift_image'), controller.addWishlist);
 router.get('/member/birthday', authenticate, controller.getWishlistByBirthday);

@@ -1,8 +1,13 @@
 const pool = require('../../config/database');
 const path = require('path');
 
-const imageUrl = (filename) =>
-  filename ? `${process.env.BACKEND_URL || 'http://localhost:3000'}/uploads/${filename}` : null;
+// Cloudinary 사용 시 path가 이미 전체 URL, 아니면 로컬 경로
+const imageUrl = (file) => {
+  if (!file) return null;
+  if (file.path) return file.path; // Cloudinary URL
+  if (file.filename) return `${process.env.BACKEND_URL || 'http://localhost:3000'}/uploads/${file.filename}`;
+  return null;
+};
 
 exports.addWishlist = async (req, res) => {
   try {
@@ -14,7 +19,7 @@ exports.addWishlist = async (req, res) => {
       return res.status(400).json({ status: 400, message: '최대 5개까지 등록할 수 있습니다.' });
     }
 
-    const imgUrl = req.file ? imageUrl(req.file.filename) : null;
+    const imgUrl = req.file ? imageUrl(req.file) : null;
     const targetAmount = parseInt(price) || 0;
 
     // 기본 INSERT (bank 컬럼 제외)
