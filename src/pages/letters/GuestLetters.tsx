@@ -119,16 +119,25 @@ export default function GuestLetters() {
         {letters.length === 0 ? (
           <Empty>아직 편지가 없어요. 첫 편지를 보내보세요!</Empty>
         ) : (
-          letters.map((l) => (
-            <LetterCard key={l.id}>
-              <LetterHeader>
-                <SenderName>{l.sender_name}</SenderName>
-                <Amount>{l.amount.toLocaleString()}원</Amount>
-              </LetterHeader>
-              <LetterContent>{l.content}</LetterContent>
-              <LetterDate>{new Date(l.created_at).toLocaleDateString('ko-KR')}</LetterDate>
-            </LetterCard>
-          ))
+          letters.map((l) => {
+            // 이름 모자이크: 첫 글자만 보이고 나머지 blur
+            const name = l.sender_name;
+            const visiblePart = name.length > 0 ? name[0] : '?';
+            const hiddenPart = name.length > 1 ? name.slice(1) : '';
+            return (
+              <LetterCard key={l.id}>
+                <LetterHeader>
+                  <SenderNameRow>
+                    <VisibleName>{visiblePart}</VisibleName>
+                    {hiddenPart && <BlurredName>{hiddenPart}</BlurredName>}
+                  </SenderNameRow>
+                  <Amount>{l.amount.toLocaleString()}원</Amount>
+                </LetterHeader>
+                <LetterContent>{l.content}</LetterContent>
+                <LetterDate>{new Date(l.created_at).toLocaleDateString('ko-KR')}</LetterDate>
+              </LetterCard>
+            );
+          })
         )}
       </LetterList>
     </Container>
@@ -256,9 +265,23 @@ const LetterHeader = styled.div`
   margin-bottom: 10px;
 `;
 
-const SenderName = styled.span`
+const SenderNameRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1px;
+`;
+
+const VisibleName = styled.span`
   font-weight: 700;
   font-size: 15px;
+`;
+
+const BlurredName = styled.span`
+  font-weight: 700;
+  font-size: 15px;
+  filter: blur(6px);
+  user-select: none;
+  color: #333;
 `;
 
 const Amount = styled.span`
