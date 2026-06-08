@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const migrate = require('./config/migrate');
 
 const authRoutes = require('./src/auth/authRoutes');
 const wishlistRoutes = require('./src/wishlist/wishlistRoutes');
@@ -28,4 +29,6 @@ app.use('/api/v1/mypage', mypageRoutes);
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+migrate().then(() => {
+  app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+});
