@@ -31,9 +31,9 @@ const migrate = async () => {
         FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
       )
     `);
-    // 기존 테이블에 컬럼 추가 (이미 존재하면 무시)
-    await conn.query(`ALTER TABLE gifts ADD COLUMN IF NOT EXISTS bank_name VARCHAR(50)`).catch(() => {});
-    await conn.query(`ALTER TABLE gifts ADD COLUMN IF NOT EXISTS account_number VARCHAR(50)`).catch(() => {});
+    // 기존 테이블에 컬럼 추가 (이미 존재하면 에러 무시)
+    await conn.query(`ALTER TABLE gifts ADD COLUMN bank_name VARCHAR(50)`).catch(() => {});
+    await conn.query(`ALTER TABLE gifts ADD COLUMN account_number VARCHAR(50)`).catch(() => {});
     await conn.query(`
       CREATE TABLE IF NOT EXISTS letters (
         id INT AUTO_INCREMENT PRIMARY KEY,

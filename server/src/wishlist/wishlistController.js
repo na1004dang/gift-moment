@@ -17,14 +17,25 @@ exports.addWishlist = async (req, res) => {
     const imgUrl = req.file ? imageUrl(req.file.filename) : null;
     const targetAmount = parseInt(price) || 0;
 
+    // 기본 INSERT (bank 컬럼 제외)
     const [result] = await pool.query(
-      'INSERT INTO gifts (member_id, title, description, link, price, target_amount, image_url, bank_name, account_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [memberId, title, description, link, targetAmount, targetAmount, imgUrl, bank_name || null, account_number || null]
+      'INSERT INTO gifts (member_id, title, description, link, price, target_amount, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [memberId, title, description, link, targetAmount, targetAmount, imgUrl]
     );
-    return res.json({ status: 200, message: '위시리스트 등록 완료', data: { gift_id: result.insertId } });
+    const giftId = result.insertId;
+
+    // 계좌 정보 UPDATE (컬럼 없으면 무시)
+    if (bank_name || account_number) {
+      await pool.query(
+        'UPDATE gifts SET bank_name = ?, account_number = ? WHERE id = ?',
+        [bank_name || null, account_number || null, giftId]
+      ).catch(() => {});
+    }
+
+    return res.json({ status: 200, message: '위시리스트 등록 완료', data: { gift_id: giftId } });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ status: 500, message: '서버 오류' });
+    console.error('addWishlist error:', err.message);
+    return res.status(500).json({ status: 500, message: '서버 오류', detail: err.message });
   }
 };
 
@@ -113,7 +124,7 @@ exports.updateWishlist = async (req, res) => {
 
     const imgUrl = req.file ? imageUrl(req.file.filename) : existing[0].image_url;
     await pool.query(
-      'UPDATE gifts SET title=?, description=?, link=?, image_url=?, price=?, target_amount=?, bank_name=?, account_number=? WHERE id=?',
+      'UPDATE gifts SET title=?, description=?, link=?, image_url=?, price=?, target_amount=? WHERE id=?',
       [
         title || existing[0].title,
         description || existing[0].description,
@@ -121,11 +132,20 @@ exports.updateWishlist = async (req, res) => {
         imgUrl,
         price || existing[0].price,
         price || existing[0].target_amount,
-        bank_name !== undefined ? bank_name : existing[0].bank_name,
-        account_number !== undefined ? account_number : existing[0].account_number,
         gift_id,
       ]
     );
+    // 계좌 정보 별도 UPDATE (컬럼 없으면 무시)
+    if (bank_name !== undefined || account_number !== undefined) {
+      await pool.query(
+        'UPDATE gifts SET bank_name=?, account_number=? WHERE id=?',
+        [
+          bank_name !== undefined ? bank_name : existing[0].bank_name,
+          account_number !== undefined ? account_number : existing[0].account_number,
+          gift_id,
+        ]
+      ).catch(() => {});
+    }
     return res.json({ status: 200, message: '수정 완료' });
   } catch (err) {
     return res.status(500).json({ status: 500, message: '서버 오류' });
