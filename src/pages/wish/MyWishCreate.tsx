@@ -11,6 +11,7 @@ export default function MyWishCreate() {
   const [preview, setPreview] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -26,12 +27,17 @@ export default function MyWishCreate() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setError('');
     try {
       const formData = new FormData();
       Object.entries(form).forEach(([k, v]) => formData.append(k, v));
       if (file) formData.append('gift_image', file);
       const res = await addWishItem(formData);
       navigate(`/wish/detail?gift_id=${res.data.gift_id}`);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || '위시리스트 등록에 실패했습니다.';
+      setError(msg);
+      console.error('위시 등록 실패:', err?.response?.data || err);
     } finally {
       setSubmitting(false);
     }
@@ -73,6 +79,7 @@ export default function MyWishCreate() {
           <label>계좌번호</label>
           <Input name="account_number" value={form.account_number} onChange={handleChange} placeholder="예: 3333-01-1234567" />
         </Field>
+        {error && <ErrorMsg>⚠️ {error}</ErrorMsg>}
         <Button type="submit" disabled={submitting}>
           {submitting ? '만드는 중...' : '위시리스트 만들기'}
         </Button>
@@ -164,6 +171,15 @@ const Textarea = styled.textarea`
   outline: none;
   resize: vertical;
   &:focus { border-color: #ff6b9d; }
+`;
+
+const ErrorMsg = styled.div`
+  background: #fff5f5;
+  border: 1px solid #fc8181;
+  color: #c53030;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
 `;
 
 const Button = styled.button`
