@@ -1,0 +1,18 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: giftmoment-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_USER: giftuser
+      MYSQL_PASSWORD: giftpass
+      MYSQL_DATABASE: giftmoment
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./server/config/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
